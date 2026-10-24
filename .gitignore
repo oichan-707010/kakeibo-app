@@ -1,0 +1,14 @@
+# 依存パッケージ
+node_modules/
+
+# ビルド成果物
+dist/
+
+# 環境変数（APIキーを含むため絶対にコミットしない）
+.env
+.env.*
+!.env.example
+
+# ログ・OSファイル
+*.log
+.DS_Store

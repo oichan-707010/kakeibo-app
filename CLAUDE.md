@@ -6,7 +6,20 @@
 
 家計簿アプリ（kakeibo-app）。収入・支出を記録し、集計・確認できるアプリケーションを目指す。
 
-> 技術スタック・ディレクトリ構成・ビルド/テスト手順は、実装が進み次第このファイルに追記すること。
+レシート画像を Claude API で読み取り、カテゴリ別に集計・グラフ表示する。
+
+### 技術スタック・構成
+
+- `server/` … Node.js（Express）。`/api/receipts/analyze` で画像を受け取り、Claude API（`claude-haiku-5-5`）で解析する
+- `src/` … React（Vite）。グラフは Chart.js（react-chartjs-2）、データはローカルストレージに保存
+- `shared/categories.js` … フロント・バックで共有するカテゴリ一覧（カテゴリの追加・変更はここで行い、`src/utils/categories.js` の色も合わせて更新する）
+- API キーは `.env` の `ANTHROPIC_API_KEY` で管理し、バックエンドからのみ使う。ブラウザ側に API キーを渡さない
+
+### コマンド
+
+- `npm run dev` … 開発サーバー起動（バックエンド :3001 / フロントエンド :5173）
+- `npm run build` … フロントエンドをビルド
+- `npm start` … 本番起動（ビルド済みの `dist/` を Express から配信）
 
 ## 開発の基本方針
 
