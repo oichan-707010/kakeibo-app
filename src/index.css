@@ -297,6 +297,34 @@ button {
   word-break: break-all;
 }
 
+/* 警告のあるレシート・マイナス金額の行 */
+.receipt.has-warning {
+  border-color: var(--warning-text);
+}
+
+.items tr.negative td {
+  color: var(--danger);
+}
+
+.upload-warning {
+  margin-top: 8px;
+}
+
+.datetime {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+input[type='time'] {
+  font: inherit;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 6px;
+}
+
 .items select {
   border-left-width: 4px;
   font-size: 0.85rem;

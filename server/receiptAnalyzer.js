@@ -13,6 +13,7 @@ const client = new Anthropic();
 const ReceiptSchema = z.object({
   storeName: z.string().describe('店名。読み取れない場合は空文字'),
   date: z.string().describe('購入日（YYYY-MM-DD形式）。読み取れない場合は空文字'),
+  time: z.string().describe('購入時刻（HH:MM形式・24時間表記）。読み取れない場合は空文字'),
   items: z.array(
     z.object({
       name: z.string().describe('商品名'),
@@ -25,7 +26,7 @@ const ReceiptSchema = z.object({
 
 // Claude への指示文
 const SYSTEM_PROMPT = `あなたは家計簿アプリのレシート読み取り担当です。
-レシート画像から店名・購入日・商品ごとの名前と金額・合計金額を読み取ってください。
+レシート画像から店名・購入日時・商品ごとの名前と金額・合計金額を読み取ってください。
 
 - 金額は税込の円単位の整数にしてください。外税のレシートでは、商品ごとの金額に税額を按分して含めてください。
 - 値引き・割引の行は、マイナスの金額の項目として含めてください。

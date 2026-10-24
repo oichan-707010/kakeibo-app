@@ -41,7 +41,7 @@ export default function App() {
 
       <main className="layout">
         <div className="col">
-          <ReceiptUploader onAdd={addReceipt} />
+          <ReceiptUploader receipts={receipts} onAdd={addReceipt} />
           <CategorySummary
             receipts={filtered}
             title={month === 'all' ? '全期間' : monthLabel(month)}
@@ -49,7 +49,12 @@ export default function App() {
           <MonthlyChart receipts={receipts} />
         </div>
         <div className="col">
-          <ReceiptList receipts={filtered} onUpdate={updateReceipt} onDelete={deleteReceipt} />
+          <ReceiptList
+            receipts={filtered}
+            allReceipts={receipts}
+            onUpdate={updateReceipt}
+            onDelete={deleteReceipt}
+          />
         </div>
       </main>
     </div>

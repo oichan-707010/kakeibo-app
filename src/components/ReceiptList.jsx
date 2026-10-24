@@ -1,11 +1,13 @@
 import { CATEGORIES, CATEGORY_COLORS } from '../utils/categories.js';
 import { formatYen, sumItems } from '../utils/aggregate.js';
+import { validateReceipt } from '../utils/validation.js';
 
 /**
  * 登録済みレシートの一覧
- * 日付と商品のカテゴリはその場で修正できる
+ * 日時と商品のカテゴリはその場で修正できる
+ * allReceipts は重複チェック用（表示中の月以外のレシートも含む全件）
  */
-export default function ReceiptList({ receipts, onUpdate, onDelete }) {
+export default function ReceiptList({ receipts, allReceipts, onUpdate, onDelete }) {
   if (receipts.length === 0) {
     return (
       <section className="card">
@@ -15,8 +17,10 @@ export default function ReceiptList({ receipts, onUpdate, onDelete }) {
     );
   }
 
-  // 日付の新しい順に並べる
-  const sorted = [...receipts].sort((a, b) => b.date.localeCompare(a.date));
+  // 日時の新しい順に並べる
+  const sorted = [...receipts].sort(
+    (a, b) => b.date.localeCompare(a.date) || (b.time ?? '').localeCompare(a.time ?? ''),
+  );
 
   // 商品のカテゴリを変更する
   function changeCategory(receipt, index, category) {
@@ -30,18 +34,26 @@ export default function ReceiptList({ receipts, onUpdate, onDelete }) {
       <div className="receipt-list">
         {sorted.map((receipt) => {
           const total = sumItems(receipt);
-          // 商品の合計とレシート記載の合計がずれていたら注意を出す
-          const mismatch = receipt.printedTotal != null && receipt.printedTotal !== total;
+          const warnings = validateReceipt(receipt, allReceipts);
           return (
-            <article key={receipt.id} className="receipt">
+            <article key={receipt.id} className={`receipt ${warnings.length ? 'has-warning' : ''}`}>
               <header className="receipt-header">
                 <div>
                   <h3>{receipt.storeName}</h3>
-                  <input
-                    type="date"
-                    value={receipt.date}
-                    onChange={(e) => e.target.value && onUpdate({ ...receipt, date: e.target.value })}
-                  />
+                  <div className="datetime">
+                    <input
+                      type="date"
+                      value={receipt.date}
+                      onChange={(e) =>
+                        e.target.value && onUpdate({ ...receipt, date: e.target.value })
+                      }
+                    />
+                    <input
+                      type="time"
+                      value={receipt.time ?? ''}
+                      onChange={(e) => onUpdate({ ...receipt, time: e.target.value })}
+                    />
+                  </div>
                 </div>
                 <div className="receipt-total">
                   <strong>{formatYen(total)}</strong>
@@ -58,11 +70,11 @@ export default function ReceiptList({ receipts, onUpdate, onDelete }) {
                   </button>
                 </div>
               </header>
-              {mismatch && (
-                <p className="warning">
-                  レシート記載の合計（{formatYen(receipt.printedTotal)}）と商品の合計が一致しません。
+              {warnings.map((msg) => (
+                <p key={msg} className="warning">
+                  ⚠ {msg}
                 </p>
-              )}
+              ))}
               <table className="items">
                 <thead>
                   <tr>
@@ -73,7 +85,7 @@ export default function ReceiptList({ receipts, onUpdate, onDelete }) {
                 </thead>
                 <tbody>
                   {receipt.items.map((item, i) => (
-                    <tr key={i}>
+                    <tr key={i} className={item.price < 0 ? 'negative' : undefined}>
                       <td>{item.name}</td>
                       <td>
                         <select

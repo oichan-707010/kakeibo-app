@@ -1,8 +1,9 @@
 import { CATEGORIES } from './categories.js';
 
-// 金額を「¥1,234」形式に整形する
+// 金額を「¥1,234」形式に整形する（マイナスは「-¥1,234」）
 export function formatYen(amount) {
-  return `¥${amount.toLocaleString('ja-JP')}`;
+  const sign = amount < 0 ? '-' : '';
+  return `${sign}¥${Math.abs(amount).toLocaleString('ja-JP')}`;
 }
 
 // レシートの商品金額の合計
