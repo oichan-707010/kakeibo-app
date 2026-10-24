@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { formatYen, sumItems } from '../utils/aggregate.js';
 import { findDuplicates, formatDateTime } from '../utils/validation.js';
+import { resizeImage } from '../utils/resizeImage.js';
 
 // 今日の日付を YYYY-MM-DD 形式で返す
 function today() {
@@ -22,8 +23,10 @@ export default function ReceiptUploader({ receipts, onAdd }) {
 
   // 1枚の画像をバックエンドに送り、解析結果を受け取る
   async function analyze(file) {
+    // 大きな画像は送信前に縮小する（サーバーの 5MB 制限に収めるため）
+    const resized = await resizeImage(file);
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('image', resized);
     const res = await fetch('/api/receipts/analyze', { method: 'POST', body: formData });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -90,7 +93,7 @@ export default function ReceiptUploader({ receipts, onAdd }) {
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
+          accept="image/*"
           multiple
           disabled={loading}
           onChange={(e) => handleFiles([...e.target.files])}
@@ -100,7 +103,7 @@ export default function ReceiptUploader({ receipts, onAdd }) {
         ) : (
           <span>
             クリックしてレシート画像を選択
-            <small>JPEG・PNG・WebP・GIF（5MBまで・複数可）</small>
+            <small>スマホで撮影した写真もそのまま選べます（複数可）</small>
           </span>
         )}
       </label>
